@@ -1,42 +1,32 @@
 import RouteInformationView from "./view/information";
 import MenuView from "./view/menu";
 import FilterPresenter from "./presenter/filter";
-import {generateTripPoint} from "./mock/tripPoint";
-import {RenderPosition, render, POINT_COUNT} from "./utils";
+import {RenderPosition, render, UpdateType} from "./utils";
 import TripPresenter from './presenter/trip';
 import PointModel from './model/point';
 import FilterModel from './model/filter';
+import Api from './api';
 
-const points = new Array(POINT_COUNT).fill().map(generateTripPoint);
+const AUTHORIZATION = `Basic sfhiu3hr23h5rpfSS`;
+const END_POINT = `https://13.ecmascript.pages.academy/big-trip`;
 
-const pointModel = new PointModel();
-pointModel.setPoints(points);
+const headerElement = document.querySelector(`.page-header`);
+const tripMainElement = headerElement.querySelector(`.trip-main`);
+const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
+
 
 const mainElement = document.querySelector(`.page-main`);
 const tripEventsElement = mainElement.querySelector(`.trip-events`);
 
-/** Рендерим Маршрут и стоимость */
-const headerElement = document.querySelector(`.page-header`);
-const tripMainElement = headerElement.querySelector(`.trip-main`);
+const api = new Api(END_POINT, AUTHORIZATION);
 
+const pointModel = new PointModel();
 const filterModel = new FilterModel();
-
-/** Рендерим Меню */
-const tripControlsElement = tripMainElement.querySelector(`.trip-controls`);
-
-render(tripControlsElement.firstElementChild, new MenuView().getElement(), RenderPosition.AFTERBEGIN);
-
-/** Рендерим Контент */
-const tripPresenter = new TripPresenter(tripEventsElement, pointModel, filterModel);
+const tripPresenter = new TripPresenter(tripEventsElement, pointModel, filterModel, api);
 const filterPresenter = new FilterPresenter(tripControlsElement.lastElementChild, filterModel, pointModel);
-/** Рендерим Форму создания */
-// const tripEventsListElement = tripEventsElement.querySelector(`.trip-events__list`);
+const siteMenuComponent = new MenuView();
 
-// renderElement(tripEventsListElement, createAddForm(points[0]), `afterbegin`);
-
-if (points.length) {
-  render(tripMainElement, new RouteInformationView().getElement(), RenderPosition.AFTEREND);
-}
+render(tripControlsElement.firstElementChild, siteMenuComponent.getElement(), RenderPosition.AFTERBEGIN);
 
 tripPresenter.init();
 filterPresenter.init();
@@ -45,3 +35,12 @@ document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (e
   evt.preventDefault();
   tripPresenter.createPoint();
 });
+
+api.getPoints()
+.then((points) => {
+  console.log(points);
+  pointModel.setPoints(UpdateType.INIT, points);
+});
+/* .catch((err) => {
+  pointModel.setPoints(UpdateType.INIT, []);
+});*/

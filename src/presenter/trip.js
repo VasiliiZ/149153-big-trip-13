@@ -4,21 +4,22 @@ import PointSortView from '../view/sort';
 import {render, RenderPosition, SortType, sortDate, sortPrice, UpdateType, UserAction, remove, filter, FilterType} from '../utils';
 import PointPresenter from '../presenter/point';
 import PointNewPresenter from "./point-new";
-
+import LoadingView from "../view/loading.js";
 
 export default class Trip {
-  constructor(routeContainer, pointModel, filterModel) {
+  constructor(routeContainer, pointModel, filterModel, api) {
     this._pointModel = pointModel;
     this._filterModel = filterModel;
     this._routeContainer = routeContainer;
     this._pointPresenter = {};
     this._currentSortType = SortType.DAY;
-
+    this._isLoading = true;
     this._sortComponent = null;
+    this._api = api;
 
     this._noPointsComponent = new NoPointsView();
     this._contentComponent = new ContentView();
-
+    this._loadingComponent = new LoadingView();
     /* this._handlePointChange = this._handlePointChange.bind(this);*/
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
@@ -66,7 +67,9 @@ export default class Trip {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.UPDATE_POINT:
-        this._pointModel.updatePoint(updateType, update);
+        this._api.updatePoint(update).then((response) => {
+          this._pointModel.updatePoint(updateType, response);
+        });
         break;
       case UserAction.ADD_POINT:
         this._pointModel.addPoint(updateType, update);
@@ -88,6 +91,11 @@ export default class Trip {
         break;
       case UpdateType.MAJOR:
         this._clearTrip({resetSortType: true});
+        this._renderRoute();
+        break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
         this._renderRoute();
         break;
     }
@@ -123,7 +131,11 @@ export default class Trip {
   }
 
   _renderNoPoints() {
-    render(this._routeContainer, this._contentComponent, RenderPosition.BEFOREND);
+    render(this._routeContainer, this._noPointsComponent, RenderPosition.BEFOREND);
+  }
+
+  _renderLoading() {
+    render(this._routeContainer, this._loadingComponent, RenderPosition.AFTERBEGIN);
   }
 
   _clearTrip({resetSortType = false} = {}) {
@@ -135,13 +147,18 @@ export default class Trip {
 
     remove(this._sortComponent);
     remove(this._noPointsComponent);
-
+    remove(this._loadingComponent);
     if (resetSortType) {
       this._currentSortType = SortType.DAY;
     }
   }
 
   _renderRoute() {
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
+
     const points = this._getPoints();
     // const filterType = this._filterModel.getFilter();
     // const filteredPoints = filter[filterType](points);
