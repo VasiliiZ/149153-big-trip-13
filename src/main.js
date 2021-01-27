@@ -1,4 +1,3 @@
-import RouteInformationView from "./view/information";
 import MenuView from "./view/menu";
 import FilterPresenter from "./presenter/filter";
 import {RenderPosition, render, UpdateType} from "./utils";
@@ -38,9 +37,8 @@ document.querySelector(`.trip-main__event-add-btn`).addEventListener(`click`, (e
 
 api.getPoints()
 .then((points) => {
-  console.log(points);
   pointModel.setPoints(UpdateType.INIT, points);
-});
-/* .catch((err) => {
+})
+.catch(() => {
   pointModel.setPoints(UpdateType.INIT, []);
-});*/
+});

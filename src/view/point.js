@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
 import AbstractView from "./abstract";
-import he from 'he';
 
 const createOffersElement = ({title, price}) =>{
   return `<li class="event__offer">
@@ -11,7 +10,7 @@ const createOffersElement = ({title, price}) =>{
 };
 
 const createPointElement = (point) => {
-  const {beginDate, endDate, type, city, price, offers, isFavorite} = point;
+  const {beginDate, endDate, type, price, offers, isFavorite, destination: {name: city}} = point;
   const date = dayjs(beginDate).format(`MMM DD`);
   const fullDate = dayjs(beginDate).format(`YYYY-MM-DD`);
   const startTime = dayjs(beginDate).format(`HH:mm`);
@@ -34,7 +33,7 @@ const createPointElement = (point) => {
     <div class="event__type">
       <img class="event__type-icon" width="42" height="42" src="img/icons/${type}.png" alt="Event type icon">
     </div>
-    <h3 class="event__title">${type} ${he.encode(city)}</h3>
+    <h3 class="event__title">${type} ${city}</h3>
     <div class="event__schedule">
       <p class="event__time">
         <time class="event__start-time" datetime="${startTimeFull}">${startTime}</time>

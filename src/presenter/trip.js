@@ -42,6 +42,14 @@ export default class Trip {
     this._pointNewPresenter.init();
   }
 
+  destroy() {
+    this._clearTrip({resetSortType: true});
+
+    remove(this._contentComponent);
+
+    this._contentComponent.removeObserver(this._handleModelEvent);
+  }
+
   _getPoints() {
     const filterType = this._filterModel.getFilter();
     const points = this._pointModel.getPoints();
@@ -58,7 +66,7 @@ export default class Trip {
   }
 
   _handleModeChange() {
-    this._pointPresenter.destroy();
+    this._pointNewPresenter.destroy();
     Object
       .values(this._pointPresenter)
       .forEach((presenter) => presenter.resetView());

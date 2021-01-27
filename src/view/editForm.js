@@ -14,7 +14,7 @@ const createTypeListTemplate = (currentType) => {
 };
 
 const createEditFormElement = (data) => {
-  const {price, type, city, beginDate, endDate, destination: {description}} = data;
+  const {price, type, beginDate, endDate, destination: {description, name: city}} = data;
 
   const startTimeFull = dayjs(beginDate).format(`YYYY-MM-DD HH:mm`);
   const endTimeFull = dayjs(endDate).format(`YYYY-MM-DD HH:mm`);

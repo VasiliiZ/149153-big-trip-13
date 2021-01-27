@@ -1,10 +1,9 @@
 import SmartView from './smart';
 import dayjs from 'dayjs';
 import flatpickr from 'flatpickr';
-// import he from 'he';
 
-const createAddFormElement = () => {
-
+const createAddFormElement = (data) => {
+  console.log(data);
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
     <header class="event__header">
@@ -156,7 +155,7 @@ export default class Add extends SmartView {
   }
 
   getTemplate() {
-    return createAddFormElement();
+    return createAddFormElement(this._data);
   }
 
   updateElement() {
